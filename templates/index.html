@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawing</title>
+    <style>
+        canvas {
+            border: 1px solid #000;
+            background-color: black;
+
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; margin-top: 150px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+    <canvas id="myCanvas" width="280" height="280" style="margin-left: 290px;"></canvas>
+    <div style="display: block;">
+    <button onclick="saveDrawing()" style="border-radius: 5px; width: 100px;height: 30px; margin-top: 115px; background-color: yellowgreen; margin-left: 30px; margin-right: 30px">Predict</button>
+    <button onclick="window.location.reload()" style="border-radius: 5px; width: 100px;height: 30px; margin-top: 115px; background-color:coral; margin-left: 30px; margin-right: 30px">Clear</button>
+     
+    </div>  
+    <img src="/static/images/x.png" id="output" alt="Predictions Here" style="width: 280px; height: 280px; border: 1px solid black;"></img>
+</div>
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        let isDrawing = false;
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e); // To start drawing immediately at the mouse-down position
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x, y, 20,20); // Draw a single pixel at the current position
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function saveDrawing() {
+             const imageData = canvas.toDataURL(); // Get the base64-encoded PNG data
+    // Make an asynchronous request to the Flask app
+    fetch('/predict', {
+        method: 'POST', // or 'GET', depending on your server setup
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ image: imageData }), // Assuming your server expects image data in JSON format
+    })
+    .then(response => response.json())
+    .then(prediction => {
+        // Handle the prediction (a number) as needed
+        var output=document.getElementById("output");
+        var value=prediction["prediction"]
+        var imagename = value+".png"
+        console.log(imagename)
+        output.src='/static/images/'+imagename
+
+        // Optionally, you can perform further actions based on the prediction
+        // For example, update the UI or display the result to the user
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+        }
+    </script>
+</body>
+</html>
