@@ -6,12 +6,12 @@ Users can draw a digit on an HTML canvas, and the system provides instant classi
 **Installation**
 
 *1.Install the required packages*
-  '''
+'''
   pip install torch torchvision numpy flask matplotlib pillow
-  '''
+'''
 
 *2.Run the model*
-  '''
+'''
   python main.py
-  '''
+'''
 
